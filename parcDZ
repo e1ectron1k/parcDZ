@@ -1,0 +1,29 @@
+import requests
+from bs4 import BeautifulSoup
+
+KEYWORDS = ['дизайн', 'фото', 'web', 'python']
+
+URL = 'https://habr.com/ru/all/'
+
+response = requests.get(URL)
+soup = BeautifulSoup(response.text, 'html.parser')
+
+articles = soup.find_all('article')
+
+filtered_articles = []
+
+for article in articles:
+    title_element = article.find('h2')
+    date_element = article.find('time')
+    link_element = title_element.find('a') if title_element else None
+
+    if title_element and date_element and link_element:
+        title = title_element.get_text(strip=True)
+        date = date_element['title']
+        link = link_element['href']
+
+        if any(keyword.lower() in title.lower() for keyword in KEYWORDS):
+            filtered_articles.append(f"{date} – {title} – {link}")
+
+for article in filtered_articles:
+    print(article)
